@@ -37,13 +37,13 @@ def save_file(file_path: str, shard: np.ndarray) -> None:
 
     np.save(file_path, shard)
 
-def save_shards():
+def save_shards(ds_path: str, ds_name: str, shard_name: str, token: bool = False):
     '''
     load chunks of text from remote dataset, tokenize single text and each 100MT save it into tokenized array in a .npy file
     '''
 
     # remote dataset (with streaming=True i am not downloading the dataset in local, is in remote and ds now is an iterable)
-    ds = load_dataset(path="HuggingFaceFW/fineweb-edu", name="sample-10BT", split="train", streaming=True) 
+    ds = load_dataset(path=ds_path, name=ds_name, split="train", streaming=True, token=token) 
 
     # settings
     shard_size = int(1e8) # maximum number of tokens in one shard
@@ -53,6 +53,8 @@ def save_shards():
     n_shard = 1
     tot_tks = 0 # number of tks in a shard (the shard has 1e8 elements but the number of occupied ones is tot_tks)
     progress_bar = None
+    max_tks = int(1e10)
+    tot_shards_tks = 0 # keep track of the number of tokens in all the shards
 
     # create in-memory array
     shard = np.empty(shard_size, dtype=np.uint16)
@@ -61,6 +63,10 @@ def save_shards():
     with Pool(processes=n_procs, initializer=init_tokenizer) as pool:
         for tks in pool.imap(func=tokenize, iterable=ds, chunksize=chunk_size):
             n_tks = len(tks)
+
+            # for the it tokens dataset, the dataset contains 165BT, i have to stop at 10BT
+            if shard_name == 'shard_it' and tot_shards_tks >= max_tks:
+                break
                 
             # if there is place for the entire tks put it, if there is not put some in this one and if there is more in another chunk
             if tot_tks + n_tks < shard_size:
@@ -81,9 +87,11 @@ def save_shards():
 
                 progress_bar = None
 
-                file_name_shard = f"shard_{n_shard:03d}.npy"
+                file_name_shard = f"{shard_name}_{n_shard:03d}.npy"
 
                 save_file(data_folder + file_name_shard, shard[:tot_tks + available_elem])
+
+                tot_shards_tks += int(1e8)
 
                 n_shard += 1
 
@@ -96,12 +104,15 @@ def save_shards():
 
         # save the final shard if it has any tokens 
         if tot_tks != 0:
-            file_name_shard = f"shard_{n_shard:03d}.npy"
+            file_name_shard = f"{shard_name}_{n_shard:03d}.npy"
 
             save_file(data_folder + file_name_shard, shard[:tot_tks])
         
 if __name__ == '__main__':
-    save_shards()
-
+    # save en tokens 
+    save_shards("HuggingFaceFW/fineweb-edu", "sample-10BT", 'shard_en')
+    
+    # save it tokens
+    save_shards("uonlp/CulturaX", "it", 'shard_it', True)
 
 
