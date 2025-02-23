@@ -16,8 +16,7 @@ import tiktoken
 
 tn = tiktoken.get_encoding('gpt2')
 
-arr = np.load('data/shard_it_001.npy')
+farr = np.load('data/shard_it_023.npy')
+larr = np.load('data/shard_en_081.npy')
 
-print(tn.decode(arr[:10]))
-
-print(tn.decode(arr[-10:]))
+print(farr[:10])

@@ -5,12 +5,11 @@ from multiprocessing import Pool, cpu_count
 from datasets import load_dataset
 from tqdm import tqdm
 
-# initialize the tokenizer outside otherwise its going to slow down the code
 tn = None
 
 def init_tokenizer():
     '''
-    initialize tokenizer
+    initialize tokenizer (if you initialize the tokenizer before its gonna speed up the total process)
     '''
 
     global tn
@@ -95,6 +94,7 @@ def save_shards(ds_path: str, ds_name: str, shard_name: str, token: bool = False
 
                 n_shard += 1
 
+                # creat next shard                
                 shard = np.empty(shard_size, dtype=np.uint16)
 
                 # put the tokens in tks that did not fit in the previous shard in the new one
@@ -110,9 +110,7 @@ def save_shards(ds_path: str, ds_name: str, shard_name: str, token: bool = False
         
 if __name__ == '__main__':
     # save en tokens 
-    save_shards("HuggingFaceFW/fineweb-edu", "sample-10BT", 'shard_en')
+    save_shards("HuggingFaceFW/fineweb-edu", "sample-10BT", 'shard_en') # 9.944317243BT ~ 10BT | 100 shards | 19.8886GB ~ 20GB
     
     # save it tokens
-    save_shards("uonlp/CulturaX", "it", 'shard_it', True)
-
-
+    save_shards("uonlp/CulturaX", "it", 'shard_it', True) # 10.000001071BT ~ 10BT | 101 shards | 20.0002GB ~ 20GB
