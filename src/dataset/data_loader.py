@@ -33,15 +33,15 @@ class DataLoader:
             rows = np.arange(batch_size)[:, None]
             cols = np.arange(block_size)
 
-            xb = torch.from_numpy(tks_np[idxs[rows] + cols]) # (B, T), B:batch_size, T:block_size
-            yb = torch.from_numpy(tks_np[idxs[rows] + cols + 1]) # (B, T)
+            xb = torch.from_numpy(tks_np[idxs[rows] + cols]).to(torch.uint16) # (B, T), B:batch_size, T:block_size
+            yb = torch.from_numpy(tks_np[idxs[rows] + cols + 1]).to(torch.uint16) # (B, T)
         else:
             assert batch_size % 2 == 0, 'batch_size has to be divisible by 2'
 
             half_batch = batch_size // 2
 
-            xb = torch.zeros(batch_size, block_size, dtype=torch.int32)
-            yb = torch.zeros(batch_size, block_size, dtype=torch.int32)
+            xb = torch.zeros(batch_size, block_size, dtype=torch.uint16)
+            yb = torch.zeros(batch_size, block_size, dtype=torch.uint16)
             
             for i, type_shard in enumerate(['en', 'it']):
                 # load random shard
@@ -66,6 +66,7 @@ class DataLoader:
 
                 return xb_shuffled, yb_shuffled
         
-        xb, yb = xb.to(device), yb.to(device)
+        xb, yb = xb.to(device), yb.to(device) # (B, T)
 
         return xb, yb
+
