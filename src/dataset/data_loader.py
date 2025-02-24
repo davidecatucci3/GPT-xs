@@ -59,8 +59,9 @@ def get_batch(batch_size: int, block_size: int, mix: bool = False, shuffle: bool
         if shuffle:
             perm = torch.randperm(batch_size)
 
-            return xb[perm], yb[perm]
+            xb_shuffled, yb_shuffled = xb[perm], yb[perm]
+
+            return xb_shuffled, yb_shuffled
 
     return xb, yb
 
-xb, yb = get_batch(100_000, 1024, mix=True)
