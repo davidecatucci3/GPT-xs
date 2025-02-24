@@ -3,21 +3,21 @@ import numpy as np
 import tiktoken
 
 # train data
-arr1 = np.load('data/shard_en_001.npy')
-arr2 = np.load('data/shard_it_001.npy')
+arr1 = np.load('data/dataset/shard_en_001.npy')
+arr2 = np.load('data/dataset/shard_it_001.npy')
 
 tn = tiktoken.get_encoding('gpt2')
 
 str_arr1 = tn.decode(arr1)
 str_arr2 = tn.decode(arr2)
 
-input_file = 'src/tokenizer/corpus2.txt'
+input_file = 'data/tokenizer/corpus2.txt'
 
 with open(input_file, 'w', encoding='utf-8') as f:
     f.write(str_arr1 + '\n' + str_arr2)
 
 # settings
-input_file = 'src/tokenizer/corpus.txt'
+input_file = 'data/tokenizer/corpus.txt'
 tot_tks = int((len(arr1) + len(arr2)) / 1e6)
 vocab_size = 50257   
 model_prefix = f'BPE-{tot_tks}-{vocab_size}'     

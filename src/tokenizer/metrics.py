@@ -17,14 +17,14 @@ def calc_fertility():
     # tokenizer usede to encode
     sp = spm.SentencePieceProcessor()
 
-    sp.load('src/tokenizer/BPE-200-50527.model')
+    sp.load('data/tokenizer/BPE-200-50527.model')
 
     l_fertility_en, l_fertility_it = [], []
 
     i = random.randint(1, 100)
 
-    arr = np.load(f'data/shard_en_{i:03d}.npy')
-    arr2 = np.load(f'data/shard_it_{i:03d}.npy')
+    arr = np.load(f'data/dataset/shard_en_{i:03d}.npy')
+    arr2 = np.load(f'data/dataset/shard_it_{i:03d}.npy')
 
     for _ in range(100):
         # load tokenized data

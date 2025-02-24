@@ -49,7 +49,7 @@ class DatasetLoader:
         # settings
         shard_size = int(1e8) # maximum number of tokens in one shard
         chunk_size = 16 # take a chunk of documents from the dataset per time
-        data_folder = 'data/' # where .npy files where will be stored
+        data_folder = 'data/dataset/' # where .npy files where will be stored
         n_procs = cpu_count() # how many cpu cores you want to use
         n_shard = 1
         tot_tks = 0 # number of tks in the current shard
@@ -117,8 +117,8 @@ if __name__ == '__main__':
     ds_loader = DatasetLoader()
 
     # save en tokens 
-    #ds_loader(ds_path="HuggingFaceFW/fineweb-edu", ds_name="sample-10BT", shard_name='shard_en') # 9.944317243BT ~ 10BT | 100 shards | 19.8886GB ~ 20GB
+    ds_loader(ds_path="HuggingFaceFW/fineweb-edu", ds_name="sample-10BT", shard_name='shard_en') # 9.944317243BT ~ 10BT | 100 shards | 19.8886GB ~ 20GB
     
     # save it tokens
-    #ds_loader(ds_path="uonlp/CulturaX", ds_name="it", shard_name='shard_it', token=True) # 10.000001071BT ~ 10BT | 101 shards | 20.0002GB ~ 20GB
+    ds_loader(ds_path="uonlp/CulturaX", ds_name="it", shard_name='shard_it', token=True) # 10.000001071BT ~ 10BT | 101 shards | 20.0002GB ~ 20GB
 

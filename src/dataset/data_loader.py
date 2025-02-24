@@ -8,7 +8,7 @@ class DataLoader:
         # select a random shard file
         x_shard = random.randrange(1, 100) # do not include shard 101 because there a too few tokens inside
         type_shard = random.choice(['en', 'it']) if not type_shard else type_shard
-        path_name_shard = f'data/shard_{type_shard}_{x_shard:03d}.npy'
+        path_name_shard = f'data/dataset/shard_{type_shard}_{x_shard:03d}.npy'
             
         tks_np = np.load(path_name_shard)
 
