@@ -8,7 +8,7 @@ from collections import Counter
 
 def calc_fertility():
     '''
-    the fertility is the number of tokens divided by the number of words before been tokenized
+    the fertility is the ratio between the number of tokens and the number of words in a document
     '''
 
     # tokenizer used to decode gpt2 tokens
@@ -17,7 +17,7 @@ def calc_fertility():
     # tokenizer usede to encode
     sp = spm.SentencePieceProcessor()
 
-    sp.load('src/tokenizer/BPE.model')
+    sp.load('src/tokenizer/BPE-200-50527.model')
 
     l_fertility_en, l_fertility_it = [], []
 
@@ -30,13 +30,15 @@ def calc_fertility():
         # load tokenized data
         i = random.randint(1, 100)
 
-        # generate random start indices (fixing the typo in len(arr2))
-        idxs = np.random.randint(0, len(arr) - 20000)
-        idxs2 = np.random.randint(0, len(arr2) - 20000)  
+        # generate random start indices
+        chunk_size = 5000
 
-        # extract chunks of 20,000 tokens
-        chunk_arr = arr[idxs:idxs + 20000]
-        chunk_arr2 = arr2[idxs2:idxs2 + 20000]
+        idxs = np.random.randint(0, len(arr) - chunk_size)
+        idxs2 = np.random.randint(0, len(arr2) - chunk_size)  
+
+        # extract chunks
+        chunk_arr = arr[idxs:idxs + chunk_size]
+        chunk_arr2 = arr2[idxs2:idxs2 + chunk_size]
 
         # decode token chunks to text
         txt = tn.decode(chunk_arr)
@@ -54,8 +56,8 @@ def calc_fertility():
         n_tks2 = len(enc_txt2)
 
         # calculate fertility
-        fertility_en = n_tks / n_words
-        fertility_it = n_tks2 / n_words2
+        fertility_en = round(n_tks / n_words, 2)
+        fertility_it = round(n_tks2 / n_words2, 2)
 
         l_fertility_en.append(fertility_en)
         l_fertility_it.append(fertility_it)
@@ -68,18 +70,18 @@ l_fertility_en, l_fertility_it = calc_fertility()
 counter_en = Counter(l_fertility_en)
 counter_it = Counter(l_fertility_it)
 
-mode_en = max(counter_en, key=counter_en.get)
-mode_it = max(counter_it, key=counter_it.get)
-
-print(f'fertility en: {mode_en:.2f}')
-print(f'fertility it: {mode_it:.2f}')
+freq_en = max(counter_en, key=counter_en.get) # most frequent perplexity after tot iterations for en tokens
+freq_it = max(counter_it, key=counter_it.get)  # most frequent perplexity over tot iterations for it tokens
+ 
+print(f'fertility en: {freq_en:.2f}') # 1.28
+print(f'fertility it: {freq_it:.2f}') # 1.40
 
 # plot 
 plt.hist(l_fertility_en, label='EN')
 plt.hist(l_fertility_it, label='IT')
 
-plt.axvline(mode_en, color='blue', linestyle='--', label=f'Mode EN: {mode_en:.2f}')
-plt.axvline(mode_it, color='orange', linestyle='--', label=f'Mode IT: {mode_it:.2f}')
+plt.axvline(freq_en, color='blue', linestyle='--', label=f'Mode EN: {freq_en:.2f}')
+plt.axvline(freq_it, color='orange', linestyle='--', label=f'Mode IT: {freq_it:.2f}')
 
 plt.legend()
 
