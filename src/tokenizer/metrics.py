@@ -1,16 +1,23 @@
 import matplotlib.pyplot as plt
+import sentencepiece as spm
 import numpy as np
 import tiktoken
 import random
 
-from scipy import stats
+from collections import Counter
 
 def calc_fertility():
     '''
     the fertility is the number of tokens divided by the number of words before been tokenized
     '''
 
+    # tokenizer used to decode gpt2 tokens
     tn = tiktoken.get_encoding('gpt2')
+
+    # tokenizer usede to encode
+    sp = spm.SentencePieceProcessor()
+
+    sp.load('src/tokenizer/BPE.model')
 
     l_fertility_en, l_fertility_it = [], []
 
@@ -19,7 +26,7 @@ def calc_fertility():
     arr = np.load(f'data/shard_en_{i:03d}.npy')
     arr2 = np.load(f'data/shard_it_{i:03d}.npy')
 
-    for i in range(100):
+    for _ in range(100):
         # load tokenized data
         i = random.randint(1, 100)
 
@@ -40,8 +47,8 @@ def calc_fertility():
         n_words2 = len(txt2.split())
 
         # re-encode text to get token counts
-        enc_txt = tn.encode_ordinary(txt)
-        enc_txt2 = tn.encode_ordinary(txt2)
+        enc_txt = sp.encode(txt, out_type=str)
+        enc_txt2 = sp.encode(txt2, out_type=str)
 
         n_tks = len(enc_txt)
         n_tks2 = len(enc_txt2)
@@ -58,8 +65,11 @@ def calc_fertility():
 l_fertility_en, l_fertility_it = calc_fertility()
 
 # take the most frequent fertility 
-mode_en = stats.mode(l_fertility_en).mode
-mode_it = stats.mode(l_fertility_it).mode
+counter_en = Counter(l_fertility_en)
+counter_it = Counter(l_fertility_it)
+
+mode_en = max(counter_en, key=counter_en.get)
+mode_it = max(counter_it, key=counter_it.get)
 
 print(f'fertility en: {mode_en:.2f}')
 print(f'fertility it: {mode_it:.2f}')
