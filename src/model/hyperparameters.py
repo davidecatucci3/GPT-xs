@@ -10,7 +10,7 @@ hyperparams = {
     # multi-head attention
     'n_layers': 4,#12,
     'n_heads': 4,#12,
-    'd_head': 16, #64,
+    'head_size': 16, #64,
 
     # learnig rate
     'lr': 1e-2,#6e-4
