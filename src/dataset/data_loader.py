@@ -1,25 +1,29 @@
 import numpy as np
 import random
 import torch
+import os
 
 class DataLoader:
-    def __init__(self):
-        self.shards = {}
+    def __init__(self, B, T):
+        self.B = B # batch_size
+        self.T = T # ctx_lenght
 
-        for lang in ['en', 'it']:
-            self.shards[lang] = [np.load(f'data/dataset/shard_{lang}_{i:03d}.npy') for i in range(1, 3)]
+        shards_path = 'data/dataset/'
+        shards_subdir = os.listdir(shards_path)
 
-    def load_shard(self, type_shard : bool = False):
-        # select a random shard file
-        x_shard = random.randrange(1, 3) # do not include shard 101 because there a too few tokens inside
-        type_shard = random.choice(['en', 'it']) if not type_shard else type_shard
-        path_name_shard = f'data/dataset/shard_{type_shard}_{x_shard:03d}.npy'
-            
-        tks_np = np.load(path_name_shard)
+        self.all_shards = [shards_path + shard for shard in shards_subdir] # list of path for all shards
+        random.shuffle(self.all_shards) # shuffle en and it shards
 
-        return tks_np
+        self.s_idx = 0 # starting index that slice curr_shard
+        self.curr_pos = 0 # pointer shard pos
+        self.curr_shard = self.load_shard(self.all_shards[self.curr_pos]) # current shard
 
-    def get_batch(self, batch_size: int, block_size: int, device: str, mix: bool = False, shuffle: bool = False) -> tuple[torch.Tensor, torch.Tensor]:
+    def load_shard(self, path):
+        tks = np.load(path)
+
+        return tks
+
+    def get_batch(self, device: str, mix: bool = False, shuffle: bool = False) -> tuple[torch.Tensor, torch.Tensor]:
         '''
         get a batch of the dataset, each batch have T tokens
 
@@ -29,33 +33,40 @@ class DataLoader:
         '''
 
         if not mix:
-            # load random shard
-            tks_np = self.load_shard()
+            # check if current shard has enough indices left for a full batch
+            if (self.B * self.T) + self.s_idx > len(self.curr_shard):
+                # move to the next shard
+                self.s_idx = 0
+                self.curr_pos += 1
+                self.curr_shard = self.load_shard(self.all_shards[self.curr_pos]) 
 
             # create xb and yb
-            idxs = torch.randint(0, len(tks_np) - block_size, size=(batch_size,))
+            idxs = torch.randint(0, len(self.curr_shard) - self.B, size=(self.B,))
             
-            rows = np.arange(batch_size)[:, None]
-            cols = np.arange(block_size)
+            rows = np.arange(self.B)[:, None]
+            cols = np.arange(self.T)
 
-            xb = torch.from_numpy(tks_np[idxs[rows] + cols]).to(torch.long) # (B, T), B:batch_size, T:block_size
-            yb = torch.from_numpy(tks_np[idxs[rows] + cols + 1]).to(torch.long) # (B, T)
+            xb = torch.from_numpy(self.curr_shard[idxs[rows] + cols]).to(torch.long) # (B, T)
+            yb = torch.from_numpy(self.curr_shard[idxs[rows] + cols + 1]).to(torch.long) # (B, T)
+
+            self.curr_shard = self.curr_shard[(self.B * self.T) + self.s_idx:]
+            self.s_idx += self.B * self.T
         else:
-            assert batch_size % 2 == 0, 'batch_size has to be divisible by 2'
+            assert self.B % 2 == 0, 'batch_size has to be divisible by 2'
 
-            half_batch = batch_size // 2
+            half_batch = self.B // 2
 
-            xb = torch.zeros(batch_size, block_size, dtype=torch.long)
-            yb = torch.zeros(batch_size, block_size, dtype=torch.long)
+            xb = torch.zeros(self.B, self.T, dtype=torch.long)
+            yb = torch.zeros(self.B, self.T, dtype=torch.long)
             
             for i, type_shard in enumerate(['en', 'it']):
                 # load random shard
                 tks_np = self.load_shard(type_shard)
                 
                 # create xb and yb for one language per time
-                idxs = torch.randint(0, len(tks_np) - block_size, size=(half_batch,))
+                idxs = torch.randint(0, len(tks_np) - self.T, size=(half_batch,))
 
-                rows = idxs[:, None] + torch.arange(block_size)
+                rows = idxs[:, None] + torch.arange(self.T)
                 start_idx = i * half_batch
                 end_idx = (i + 1) * half_batch
                 
@@ -65,7 +76,7 @@ class DataLoader:
 
             # instead of be the first half samples in english and the other in italian, they will be shuffled
             if shuffle:
-                perm = torch.randperm(batch_size)
+                perm = torch.randperm(self.B)
 
                 xb_shuffled, yb_shuffled = xb[perm], yb[perm]
 

@@ -25,7 +25,7 @@ else:
     device = 'cpu'
 
 # data loader
-data_loader = DataLoader()
+data_loader = DataLoader(batch_size, ctx_length)
 
 # use TF32 instead of FP32 to increase training speed
 torch.set_float32_matmul_precision('high')
@@ -46,8 +46,8 @@ print(f'Device: {device}')
 
 # train
 for i in range(steps):
-    xb, yb = data_loader.get_batch(batch_size, ctx_length, device=device, mix=True, shuffle=True)
-  
+    xb, yb = data_loader.get_batch(device=device, mix=False, shuffle=False)
+    print(data_loader.all_shards[data_loader.curr_pos ])
     optim.zero_grad()
 
     # use BF16 instead of PF16 to increase training speed
