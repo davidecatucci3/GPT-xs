@@ -42,7 +42,7 @@ optim = torch.optim.AdamW(model.parameters(), lr=lr)
 n_params = sum(p.numel() for p in model.parameters()) / 1e6
 
 print(f'Number of parameters: {n_params:.2f}M')
-print(f'Device: {device}')
+print(f'Device: {device} | {torch.cuda.get_device_name()}')
 
 # train
 for i in range(steps):
