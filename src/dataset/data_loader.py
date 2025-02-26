@@ -1,5 +1,4 @@
 import numpy as np
-import random
 import torch
 import os
 
@@ -12,13 +11,28 @@ class DataLoader:
         shards_subdir = os.listdir(shards_path)
 
         self.all_shards = [shards_path + shard for shard in shards_subdir] # list of path for all shards
-        random.shuffle(self.all_shards) # shuffle en and it shards
+
+        # separate shards by language
+        self.en_shards = [shard for shard in self.all_shards if 'en' in shard]
+        self.it_shards = [shard for shard in self.all_shards if 'it' in shard]
+
+        # Initialize shard pointers and indices
+        self.en_pos = 0  
+        self.it_pos = 0
+        self.en_s_idx = 0  
+        self.it_s_idx = 0
+        self.curr_en_shard = self.load_shard(self.en_shards[self.en_pos])
+        self.curr_it_shard = self.load_shard(self.it_shards[self.it_pos])
 
         self.s_idx = 0 # starting index that slice curr_shard
         self.curr_pos = 0 # pointer shard pos
         self.curr_shard = self.load_shard(self.all_shards[self.curr_pos]) # current shard
 
-    def load_shard(self, path):
+    def load_shard(self, path: str) -> np.ndarray:
+        '''
+        load shard from data/dataset folder given the path
+        '''
+
         tks = np.load(path)
 
         return tks
@@ -60,8 +74,20 @@ class DataLoader:
             yb = torch.zeros(self.B, self.T, dtype=torch.long)
             
             for i, type_shard in enumerate(['en', 'it']):
+                # check if current shard has enough indices left for a full batch
+                if (self.B * self.T) + self.en_s_idx > len(self.curr_en_shard):
+                    # move to the next shard
+                    self.en_s_idx = 0
+                    self.en_pos += 1
+                    self.curr_en_shard = self.load_shard(self.en_shards[self.en_pos]) 
+                elif (self.B * self.T) + self.it_s_idx > len(self.curr_it_shard):
+                    # move to the next shard
+                    self.it_s_idx = 0
+                    self.it_pos += 1
+                    self.curr_it_shard = self.load_shard(self.it_shards[self.it_pos]) 
+
                 # load random shard
-                tks_np = self.load_shard(type_shard)
+                tks_np = self.curr_en_shard if type_shard == 'en' else self.curr_it_shard
                 
                 # create xb and yb for one language per time
                 idxs = torch.randint(0, len(tks_np) - self.T, size=(half_batch,))
@@ -73,6 +99,13 @@ class DataLoader:
                 # fill the pre-allocated tensors directly
                 xb[start_idx:end_idx] = torch.from_numpy(tks_np[rows]) # (B, T)
                 yb[start_idx:end_idx] = torch.from_numpy(tks_np[rows + 1]) # (B, T)
+
+                if type_shard == 'en':
+                    self.curr_en_shard = self.curr_en_shard[(self.B * self.T) + self.en_s_idx:]
+                    self.en_s_idx += self.B * self.T
+                else:
+                    self.curr_it_shard = self.curr_it_shard[(self.B * self.T) + self.it_s_idx:]
+                    self.it_s_idx += self.B * self.T
 
             # instead of be the first half samples in english and the other in italian, they will be shuffled
             if shuffle:

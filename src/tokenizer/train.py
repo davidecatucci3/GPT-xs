@@ -19,7 +19,7 @@ with open(input_file, 'w', encoding='utf-8') as f:
 # settings
 input_file = 'data/tokenizer/corpus.txt'
 tot_tks = int((len(arr1) + len(arr2)) / 1e6)
-vocab_size = 50257   
+vocab_size = 50304   
 model_prefix = f'BPE-{tot_tks}-{vocab_size}'     
 model_type = 'bpe'       
 
@@ -30,3 +30,4 @@ spm.SentencePieceTrainer.train(
     vocab_size=vocab_size,
     model_type=model_type
 )
+

@@ -3,8 +3,8 @@ hyperparams = {
     'vocab_size': 50304,
 
     # pre-processing
-    'batch_size': 32,#500_000,
-    'ctx_length': 32, #2048
+    'batch_size': 4,#500_000,
+    'ctx_length': 8, #2048
     'd_model': 20,
 
     # multi-head attention

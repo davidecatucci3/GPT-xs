@@ -46,8 +46,8 @@ print(f'Device: {device}')
 
 # train
 for i in range(steps):
-    xb, yb = data_loader.get_batch(device=device, mix=False, shuffle=False)
-    print(data_loader.all_shards[data_loader.curr_pos ])
+    xb, yb = data_loader.get_batch(device=device, mix=True, shuffle=True)
+
     optim.zero_grad()
 
     # use BF16 instead of PF16 to increase training speed
@@ -65,11 +65,12 @@ model.eval()
 
 inp = "Roma è una città,"
 
-tn = sp.SentencePieceProcessor()
+'''tn = sp.SentencePieceProcessor()
 
-tn.load('data/tokenizer/BPE-200-50527.model')
-
-enc = tn.encode(inp)
+tn.load('data/tokenizer/BPE-200-50527.model')'''
+import tiktoken
+tn = tiktoken.get_encoding('gpt2')
+enc = tn.decode(inp)
 
 tks = torch.tensor(enc, dtype=torch.long).unsqueeze(0).to(device)
 
