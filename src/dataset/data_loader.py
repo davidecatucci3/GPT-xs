@@ -3,11 +3,13 @@ import random
 import torch
 
 class DataLoader:
-    @staticmethod
-    def load_shard(type_shard : bool = False):
+    def __init__(self):
+        pass
+
+    def load_shard(self, type_shard : bool = False):
         # select a random shard file
-        x_shard = random.randrange(1, 100) # do not include shard 101 because there a too few tokens inside
-        type_shard = random.choice(['en', 'it']) if not type_shard else type_shard
+        x_shard = random.randrange(1, 3) # do not include shard 101 because there a too few tokens inside
+        type_shard = 'en'# random.choice(['en', 'it']) if not type_shard else type_shard
         path_name_shard = f'data/dataset/shard_{type_shard}_{x_shard:03d}.npy'
             
         tks_np = np.load(path_name_shard)
@@ -33,15 +35,15 @@ class DataLoader:
             rows = np.arange(batch_size)[:, None]
             cols = np.arange(block_size)
 
-            xb = torch.from_numpy(tks_np[idxs[rows] + cols]).to(torch.uint16) # (B, T), B:batch_size, T:block_size
-            yb = torch.from_numpy(tks_np[idxs[rows] + cols + 1]).to(torch.uint16) # (B, T)
+            xb = torch.from_numpy(tks_np[idxs[rows] + cols]).to(torch.long) # (B, T), B:batch_size, T:block_size
+            yb = torch.from_numpy(tks_np[idxs[rows] + cols + 1]).to(torch.long) # (B, T)
         else:
             assert batch_size % 2 == 0, 'batch_size has to be divisible by 2'
 
             half_batch = batch_size // 2
 
-            xb = torch.zeros(batch_size, block_size, dtype=torch.uint16)
-            yb = torch.zeros(batch_size, block_size, dtype=torch.uint16)
+            xb = torch.zeros(batch_size, block_size, dtype=torch.long)
+            yb = torch.zeros(batch_size, block_size, dtype=torch.long)
             
             for i, type_shard in enumerate(['en', 'it']):
                 # load random shard
@@ -64,7 +66,7 @@ class DataLoader:
 
                 xb_shuffled, yb_shuffled = xb[perm], yb[perm]
 
-                return xb_shuffled, yb_shuffled
+                return xb_shuffled.to(device), yb_shuffled.to(device)
         
         xb, yb = xb.to(device), yb.to(device) # (B, T)
 

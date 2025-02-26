@@ -6,6 +6,10 @@ from datasets import load_dataset
 from tqdm import tqdm
 
 class DatasetLoader:
+    def __init__(self):
+        # init tokenizer 
+        self.init_tokenizer()
+
     def init_tokenizer(self):
         '''
         initialize tokenizer (if you initialize the tokenizer before its gonna speed up the total process)
@@ -32,7 +36,7 @@ class DatasetLoader:
 
         tks_np = np.array(tks, dtype=np.uint16) # list -> numpy array
 
-        assert np.amax(tks_np) >= 2 ** 16, 'maximum representable number is (2**16) - 1, change the data type or the vocabulary size'
+        assert np.amax(tks_np) < 2 ** 16, 'maximum representable number is (2**16) - 1, change the data type or the vocabulary size'
 
         tks_np = tks_np.astype(np.uint16) # int16 is negative and postive, uint16 is only positive
 
@@ -61,7 +65,7 @@ class DatasetLoader:
         shard = np.empty(shard_size, dtype=np.uint16)
 
         # utilize multiprocessing to speed up
-        with Pool(processes=n_procs, initializer=self.init_tokenizer) as pool:
+        with Pool(processes=n_procs) as pool:
             for tks in pool.imap(func=self.tokenize, iterable=ds, chunksize=chunk_size):
                 n_tks = len(tks)
 
@@ -117,8 +121,8 @@ if __name__ == '__main__':
     ds_loader = DatasetLoader()
 
     # save en tokens 
-    ds_loader(ds_path="HuggingFaceFW/fineweb-edu", ds_name="sample-10BT", shard_name='shard_en') # 9.944317243BT ~ 10BT | 100 shards | 19.8886GB ~ 20GB
+    ds_loader(ds_path="HuggingFaceFW/fineweb-edu", ds_name="sample-10BT", shard_name='shard_en__') # 9.944317243BT ~ 10BT | 100 shards | 19.8886GB ~ 20GB
     
     # save it tokens
-    ds_loader(ds_path="uonlp/CulturaX", ds_name="it", shard_name='shard_it', token=True) # 10.000001071BT ~ 10BT | 101 shards | 20.0002GB ~ 20GB
+    ds_loader(ds_path="uonlp/CulturaX", ds_name="it", shard_name='shard_it__', token=True) # 10.000001071BT ~ 10BT | 101 shards | 20.0002GB ~ 20GB
 
