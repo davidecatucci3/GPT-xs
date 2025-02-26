@@ -3,7 +3,7 @@ import torch
 import sys
 import os
 
-sys.path.append(os.path.abspath('src/dataset/../'))
+sys.path.append(os.path.abspath('src/dataset/../')) # import files from dataset folder
 
 from dataset.data_loader import DataLoader
 from hyperparameters import hyperparams
@@ -25,8 +25,9 @@ else:
     device = 'cpu'
 
 # data loader
-dl = DataLoader()
+data_loader = DataLoader()
 
+# use TF32 instead of FP32 to increase training speed
 torch.set_float32_matmul_precision('high')
 
 # model 
@@ -45,18 +46,19 @@ print(f'Device: {device}')
 
 # train
 for i in range(steps):
-    xb, yb = dl.get_batch(batch_size, ctx_length, device=device, mix=True, shuffle=True)
-
+    xb, yb = data_loader.get_batch(batch_size, ctx_length, device=device, mix=True, shuffle=True)
+  
     optim.zero_grad()
 
+    # use BF16 instead of PF16 to increase training speed
     with torch.autocast(device_type=device, dtype=torch.bfloat16):
         probs, loss = model(xb, yb)
 
     loss.backward()
     optim.step()
     
-    #if i % (steps * 0.1) == 0 or i == steps - 1:
-    print(f'step {i}/{steps} | loss: {loss.item():.3f}')
+    if i % (steps * 0.1) == 0 or i == steps - 1:
+        print(f'step {i}/{steps} | loss: {loss.item():.3f}')
 
 # eval
 model.eval()

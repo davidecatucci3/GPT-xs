@@ -4,12 +4,15 @@ import torch
 
 class DataLoader:
     def __init__(self):
-        pass
+        self.shards = {}
+
+        for lang in ['en', 'it']:
+            self.shards[lang] = [np.load(f'data/dataset/shard_{lang}_{i:03d}.npy') for i in range(1, 3)]
 
     def load_shard(self, type_shard : bool = False):
         # select a random shard file
         x_shard = random.randrange(1, 3) # do not include shard 101 because there a too few tokens inside
-        type_shard = 'en'# random.choice(['en', 'it']) if not type_shard else type_shard
+        type_shard = random.choice(['en', 'it']) if not type_shard else type_shard
         path_name_shard = f'data/dataset/shard_{type_shard}_{x_shard:03d}.npy'
             
         tks_np = np.load(path_name_shard)

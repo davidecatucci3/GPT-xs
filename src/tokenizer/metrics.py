@@ -71,10 +71,10 @@ counter_en = Counter(l_fertility_en)
 counter_it = Counter(l_fertility_it)
 
 freq_en = max(counter_en, key=counter_en.get) # most frequent perplexity after tot iterations for en tokens
-freq_it = max(counter_it, key=counter_it.get)  # most frequent perplexity over tot iterations for it tokens
+freq_it = max(counter_it, key=counter_it.get) # most frequent perplexity over tot iterations for it tokens
  
 print(f'fertility en: {freq_en:.2f}') # 1.28
-print(f'fertility it: {freq_it:.2f}') # 1.40
+print(f'fertility it: {freq_it:.2f}') # 1.39
 
 # plot 
 plt.hist(l_fertility_en, label='EN')
