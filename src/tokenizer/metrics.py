@@ -17,7 +17,7 @@ def calc_fertility():
     # tokenizer usede to encode
     sp = spm.SentencePieceProcessor()
 
-    sp.load('data/tokenizer/BPE-200-50527.model')
+    sp.load('data/tokenizer/BPE-200-50304.model')
 
     l_fertility_en, l_fertility_it = [], []
 

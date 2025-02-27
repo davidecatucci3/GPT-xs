@@ -3,14 +3,14 @@ hyperparams = {
     'vocab_size': 50304,
 
     # pre-processing
-    'batch_size': 4,#500_000,
-    'ctx_length': 8, #2048
-    'd_model': 20,
+    'batch_size': 32,#500_000,
+    'ctx_length': 32, #2048
+    'd_model': 48,
 
     # multi-head attention
-    'n_layers': 2,
-    'n_heads': 5,
-    'head_size': 4,
+    'n_layers': 3,
+    'n_heads': 6,
+    'head_size': 8,
 
     # learnig rate
     'lr': 3e-4,  #6e-4

@@ -121,8 +121,8 @@ if __name__ == '__main__':
     ds_loader = DatasetLoader()
 
     # save en tokens 
-    ds_loader(ds_path="HuggingFaceFW/fineweb-edu", ds_name="sample-10BT", shard_name='shard_en__') # 9.944317243BT ~ 10BT | 100 shards | 19.8886GB ~ 20GB
+    ds_loader(ds_path="HuggingFaceFW/fineweb-edu", ds_name="sample-10BT", shard_name='shard_en') # 9.944317243BT ~ 10BT | 100 shards | 19.8886GB ~ 20GB
     
     # save it tokens
-    ds_loader(ds_path="uonlp/CulturaX", ds_name="it", shard_name='shard_it__', token=True) # 10.000001071BT ~ 10BT | 101 shards | 20.0002GB ~ 20GB
+    ds_loader(ds_path="uonlp/CulturaX", ds_name="it", shard_name='shard_it', token=True) # 10.000001071BT ~ 10BT | 101 shards | 20.0002GB ~ 20GB
 

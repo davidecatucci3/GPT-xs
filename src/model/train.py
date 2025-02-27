@@ -1,4 +1,5 @@
 import sentencepiece as sp
+import tiktoken
 import torch
 import sys
 import os
@@ -19,10 +20,13 @@ lr = hyperparams['lr']
 # device 
 if torch.cuda.is_available():
     device = 'cuda'
+    device_name = torch.cuda.get_device_name()
 elif torch.mps.is_available():
     device = 'mps'
+    device_name = ''
 else:
     device = 'cpu'
+    device_name = ''
 
 # data loader
 data_loader = DataLoader(batch_size, ctx_length)
@@ -42,7 +46,7 @@ optim = torch.optim.AdamW(model.parameters(), lr=lr)
 n_params = sum(p.numel() for p in model.parameters()) / 1e6
 
 print(f'Number of parameters: {n_params:.2f}M')
-print(f'Device: {device} | {torch.cuda.get_device_name()}')
+print(f'Device: {device} | {device_name}')
 
 # train
 for i in range(steps):
@@ -65,16 +69,19 @@ model.eval()
 
 inp = "Roma è una città,"
 
-'''tn = sp.SentencePieceProcessor()
+'''
+tn = sp.SentencePieceProcessor()
 
-tn.load('data/tokenizer/BPE-200-50527.model')'''
-import tiktoken
+tn.load('data/tokenizer/BPE-200-50527.model')
+'''
+
 tn = tiktoken.get_encoding('gpt2')
-enc = tn.decode(inp)
+
+enc = tn.encode(inp)
 
 tks = torch.tensor(enc, dtype=torch.long).unsqueeze(0).to(device)
 
-res = model.generate(tks, max_tokens=1000)[0].tolist()
+res = model.generate(tks, max_tokens=2000)[0].tolist()
 
 dec = tn.decode(res)
 

@@ -16,7 +16,7 @@ class DataLoader:
         self.en_shards = [shard for shard in self.all_shards if 'en' in shard]
         self.it_shards = [shard for shard in self.all_shards if 'it' in shard]
 
-        # Initialize shard pointers and indices
+        # initialize shard pointers and indices
         self.en_pos = 0  
         self.it_pos = 0
         self.en_s_idx = 0  
