@@ -14,7 +14,7 @@ class DataLoader:
 
         # separate shards by language
         self.en_shards = [shard for shard in self.all_shards if 'en' in shard]
-        self.it_shards = [shard for shard in self.all_shards if 'it' in shard]
+        #self.it_shards = [shard for shard in self.all_shards if 'it' in shard]
 
         # initialize shard pointers and indices
         self.en_pos = 0  
@@ -22,7 +22,7 @@ class DataLoader:
         self.en_s_idx = 0  
         self.it_s_idx = 0
         self.curr_en_shard = self.load_shard(self.en_shards[self.en_pos])
-        self.curr_it_shard = self.load_shard(self.it_shards[self.it_pos])
+        #self.curr_it_shard = self.load_shard(self.it_shards[self.it_pos])
 
         self.s_idx = 0 # starting index that slice curr_shard
         self.curr_pos = 0 # pointer shard pos
@@ -73,18 +73,18 @@ class DataLoader:
             xb = torch.zeros(self.B, self.T, dtype=torch.long)
             yb = torch.zeros(self.B, self.T, dtype=torch.long)
             
-            for i, type_shard in enumerate(['en', 'it']):
+            for i, type_shard in enumerate(['en']):
                 # check if current shard has enough indices left for a full batch
                 if (self.B * self.T) + self.en_s_idx > len(self.curr_en_shard):
                     # move to the next shard
                     self.en_s_idx = 0
                     self.en_pos += 1
                     self.curr_en_shard = self.load_shard(self.en_shards[self.en_pos]) 
-                elif (self.B * self.T) + self.it_s_idx > len(self.curr_it_shard):
+                #elif (self.B * self.T) + self.it_s_idx > len(self.curr_it_shard):
                     # move to the next shard
-                    self.it_s_idx = 0
-                    self.it_pos += 1
-                    self.curr_it_shard = self.load_shard(self.it_shards[self.it_pos]) 
+                    #self.it_s_idx = 0
+                    #self.it_pos += 1
+                    #self.curr_it_shard = self.load_shard(self.it_shards[self.it_pos]) 
 
                 # load random shard
                 tks_np = self.curr_en_shard if type_shard == 'en' else self.curr_it_shard

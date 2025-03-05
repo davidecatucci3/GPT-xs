@@ -69,13 +69,9 @@ model.eval()
 
 inp = "Roma è una città,"
 
-'''
 tn = sp.SentencePieceProcessor()
 
 tn.load('data/tokenizer/BPE-200-50527.model')
-'''
-
-tn = tiktoken.get_encoding('gpt2')
 
 enc = tn.encode(inp)
 
