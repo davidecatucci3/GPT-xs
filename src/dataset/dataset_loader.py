@@ -1,5 +1,5 @@
+import sentencepiece as sp
 import numpy as np
-import tiktoken
 
 from multiprocessing import Pool, cpu_count
 from datasets import load_dataset
@@ -14,8 +14,9 @@ class DatasetLoader:
         '''
         initialize tokenizer (if you initialize the tokenizer before its gonna speed up the total process)
         '''
+        self.tn = sp.SentencePieceProcessor()
 
-        self.tn = tiktoken.get_encoding('gpt2')
+        self.tn.load('data/tokenizer/BPE-200-50304.model')
 
     @staticmethod
     def save_shard(file_path: str, shard: np.ndarray) -> None:
@@ -58,8 +59,6 @@ class DatasetLoader:
         n_shard = 1
         tot_tks = 0 # number of tks in the current shard
         progress_bar = None
-        max_tks = int(1e10)
-        tot_shards_tks = 0 # keep track of the number of tokens in all the shards
 
         # create in-memory array
         shard = np.empty(shard_size, dtype=np.uint16)
@@ -68,10 +67,6 @@ class DatasetLoader:
         with Pool(processes=n_procs) as pool:
             for tks in pool.imap(func=self.tokenize, iterable=ds, chunksize=chunk_size):
                 n_tks = len(tks)
-
-                # for the it tokens dataset, the dataset contains 165BT, i have to stop at 10BT
-                if shard_name == 'shard_it' and tot_shards_tks >= max_tks:
-                    break
                     
                 # if there is place for the entire tks put it, if there is not put some in this one and if there is more in another chunk
                 if tot_tks + n_tks < shard_size:
@@ -79,7 +74,6 @@ class DatasetLoader:
                     shard[tot_tks:tot_tks + n_tks] = tks
 
                     tot_tks += n_tks
-                    tot_shards_tks += n_tks
 
                     if progress_bar is None:
                         progress_bar = tqdm(total=shard_size, unit='tokens', desc=f'Shard {n_shard:03d}')
@@ -97,8 +91,6 @@ class DatasetLoader:
 
                     self.save_shard(data_folder + file_name_shard, shard[:tot_tks + available_elem])
 
-                    tot_shards_tks += available_elem
-
                     n_shard += 1
 
                     # creat next shard                
@@ -108,8 +100,6 @@ class DatasetLoader:
                     shard[:n_tks - available_elem] = tks[available_elem:]
 
                     tot_tks = n_tks - available_elem
-
-                    tot_shards_tks += n_tks - available_elem
 
             # save the final shard if it has any tokens 
             if tot_tks != 0:
@@ -122,7 +112,3 @@ if __name__ == '__main__':
 
     # save en tokens 
     ds_loader(ds_path="HuggingFaceFW/fineweb-edu", ds_name="sample-10BT", shard_name='shard_en') # 9.944317243BT ~ 10BT | 100 shards | 19.8886GB ~ 20GB
-    
-    # save it tokens
-    ds_loader(ds_path="uonlp/CulturaX", ds_name="it", shard_name='shard_it', token=True) # 10.000001071BT ~ 10BT | 101 shards | 20.0002GB ~ 20GB
-

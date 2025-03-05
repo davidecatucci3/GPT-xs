@@ -48,9 +48,29 @@ n_params = sum(p.numel() for p in model.parameters()) / 1e6
 print(f'Number of parameters: {n_params:.2f}M')
 print(f'Device: {device} | {device_name}')
 
+# eval
+def evaluate():
+    model.eval()
+
+    inp = "I am a Larage Language model and"
+
+    tn = sp.SentencePieceProcessor()
+
+    tn.load('data/tokenizer/BPE-200-50304.model')
+
+    enc = tn.encode(inp)
+
+    tks = torch.tensor(enc, dtype=torch.long).unsqueeze(0).to(device)
+
+    res = model.generate(tks, max_tokens=2000)[0].tolist()
+
+    dec = tn.decode(res)
+    
+    print(inp + dec)
+
 # train
 for i in range(steps):
-    xb, yb = data_loader.get_batch(device=device, mix=True, shuffle=True)
+    xb, yb = data_loader.get_batch(device=device)
 
     optim.zero_grad()
 
@@ -62,24 +82,7 @@ for i in range(steps):
     optim.step()
     
     if i % (steps * 0.1) == 0 or i == steps - 1:
+        print(f'EVAL {i}')
+        print(evaluate())
+        print('-' * 20)
         print(f'step {i}/{steps} | loss: {loss.item():.3f}')
-
-# eval
-model.eval()
-
-inp = "Roma è una città,"
-
-tn = sp.SentencePieceProcessor()
-
-tn.load('data/tokenizer/BPE-200-50527.model')
-
-enc = tn.encode(inp)
-
-tks = torch.tensor(enc, dtype=torch.long).unsqueeze(0).to(device)
-
-res = model.generate(tks, max_tokens=2000)[0].tolist()
-
-dec = tn.decode(res)
-
-print(inp + dec)
-
