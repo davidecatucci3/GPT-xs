@@ -31,7 +31,7 @@ def calc_fertility():
         idxs = np.random.randint(0, len(arr) - chunk_size)
 
         # extract chunks
-        chunk_arr = arr[idxs:idxs + chunk_size]
+        chunk_arr = arr[idxs:idxs + chunk_size].tolist()
 
         # decode token chunks to text
         txt = tn.decode(chunk_arr)

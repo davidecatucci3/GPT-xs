@@ -33,7 +33,7 @@ class DatasetLoader:
 
         txt = doc['text'] # string of text
 
-        tks = self.tn.encode_ordinary(txt) # str -> list of tokens
+        tks = self.tn.encode(txt) # str -> list of tokens
 
         tks_np = np.array(tks, dtype=np.uint16) # list -> numpy array
 

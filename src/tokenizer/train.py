@@ -1,27 +1,39 @@
 import sentencepiece as spm
 import numpy as np
-import tiktoken
 
 # train data
 arr1 = np.load('data/dataset/shard_en_001.npy')
+arr2 = np.load('data/dataset/shard_en_011.npy')
 
-tn = tiktoken.get_encoding('gpt2')
+tn = spm.SentencePieceProcessor()
 
-str_arr1 = tn.decode(arr1)
+tn.load('data/tokenizer/BPE-200-50304.model')
+
+arr1 = arr1.tolist()
+arr2 = arr2.tolist()
 
 input_file = 'data/tokenizer/corpus.txt'
 
-'''
-with open(input_file, 'w', encoding='utf-8') as f:
-    f.write(str_arr1)
-'''
+s = 0
+e = 10000
 
+while s + e <= 100_000_000:
+    with open(input_file, 'a', encoding='utf-8') as f:
+        str_arr1 = tn.decode(arr1[s:s + e])
+        str_arr2 = tn.decode(arr1[s:s + e])
+
+        s += e
+            
+        chunk = str_arr1 + '\n' + str_arr2
+
+        f.write(chunk)
+    
 # settings
 user_defined_symbols = ["<s>", "</s>", "<pad>", "<eod>"] + [f"<ph_{i}>" for i in range(1, 256)]
 vocab_size = 50304
 model_type = "bpe"
-tot_tks = int(len(arr1) / 1e6)
-model_prefix = f"{model_type.upper()}-{tot_tks}-{vocab_size}"
+tot_tks = int((len(arr1) + len(arr2)) / 1e6)
+model_prefix = f"{model_type.upper()}-{tot_tks}-{vocab_size}2"
 character_coverage = 0.9999
 split_by_number = True
 add_dummy_prefix = True
