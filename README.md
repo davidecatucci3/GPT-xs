@@ -1,5 +1,6 @@
 # GPT-xs
 ![plot](meme.gif)
+
 GPT-xs is an autoregressive text generation model designed to replicate the GPT-2 architecture originally developed by OpenAI. This implementation specifically recreates the "xs" (extra small) variant, featuring 124 million parameters. The project draws inspiration from a YouTube video by Andrej Karpathy and was undertaken as a personal exercise for educational purposes. Unlike commercially deployed models, GPT-xs is not intended for production use but serves as a personal exercise to improve my skills in this field.
 
 
