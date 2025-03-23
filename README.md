@@ -6,8 +6,16 @@
   I was searching an image to put and this just makes me laugh a lot, so i put it idkw
 </p>
 
-
 GPT-xs is an autoregressive text generation model designed to replicate the GPT-2 architecture originally developed by OpenAI. This implementation specifically recreates the "xs" (extra small) variant, featuring 124 million parameters. The project draws inspiration from a YouTube video by Andrej Karpathy and was undertaken as a personal exercise for educational purposes. Unlike commercially deployed models, GPT-xs is not intended for production use but serves as a personal exercise to improve my skills in this field.
+
+## Files
+- data_loader.py: Implements functionality to efficiently load batches of data from preprocessed shards, preparing them for input into the model during training or inference
+- dataset.py: Handles the retrieval of the dataset from Hugging Face, processes it into tokenized shards, and prepares the data for use in model training
+- model.py: Defines the architecture and structure of the machine learning model, specifying layers, parameters, and configurations
+- train.py: Orchestrates the training process, including loading the model, optimizing parameters, and managing the training loop for effective learning
+- eval.py: Used to use the model after training
+- plot.py: Plot the data that has been grab during the training process
+- hellaswag.py: Code for calculate the accuracy of the model with the hella swag dataset
 
 
 **
