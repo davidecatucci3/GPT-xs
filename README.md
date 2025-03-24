@@ -18,7 +18,7 @@ GPT-xs is an autoregressive text generation model designed to replicate the GPT-
 - hellaswag.py: Calculate the accuracy of the model using the HellaSwag dataset
 
 ## Dataset
-The model was trained on the FineWeb-Edu dataset, which comprises 10 billion tokens. To facilitate training, I partitioned the dataset into 100 shards, with each shard containing 100 million tokens, each shard has a size of 200MB for a total of 20GB
+The model was trained on the FineWeb-Edu dataset, which comprises 10 billion tokens. To facilitate training, I partitioned the dataset into 100 shards, with each shard containing 100 million tokens, each shard has a size of 200MB for a total of 20GB. This is the link for the dataset: https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu
 
 ## Architecture
 As previously mentioned, this model is based on the GPT-2 architecture. I will outline the hyperparameters and methods employed in its design. For a more comprehensive and detailed explanation, please refer to the GPT-2 paper: https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf
