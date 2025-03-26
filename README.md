@@ -9,6 +9,7 @@
 GPT-xs is an autoregressive text generation model designed to replicate the GPT-2 architecture originally developed by OpenAI. This implementation specifically recreates the "xs" (extra small) variant, featuring 124 million parameters. The project draws inspiration from a YouTube video by Andrej Karpathy and was undertaken as a personal exercise for educational purposes. Unlike commercially deployed models, GPT-xs is not intended for production use but serves as a personal exercise to improve my skills in this field
 
 ## Files
+- log/model_05000.pt: Is the model saved after training in the .pt format to be used, unfortunately  I only have the model saved after 5000 / 19073 steps
 - data_loader.py: Implements functionality to efficiently load batches of data from preprocessed shards, preparing them for input into the model during training or inference
 - dataset.py: Handles the retrieval of the dataset from Hugging Face, processes it into tokenized shards, and prepares the data for use in model training
 - model.py: Defines the architecture and structure of the machine learning model, specifying layers, parameters, and configurations
